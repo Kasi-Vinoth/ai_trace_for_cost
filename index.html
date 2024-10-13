@@ -1,0 +1,50 @@
+import plotly.graph_objects as go
+import pandas as pd
+from plotly.offline import plot
+
+# Initialize the figure
+fig = go.Figure()
+
+# Add traces (line plots) for each column of interest
+columns_of_interest = ['total_cost_incurred',
+       'total_input_cost_incurred', 'total_output_cost_incurred',
+       'input_cost_incurred_for_GenerateQuestionEmbedding',
+       'total_cost_incurred_for_GenerateQuestionEmbedding',
+       'input_cost_incurred_for_generation',
+       'output_cost_incurred_for_generation',
+       'total_cost_incurred_for_generation']
+
+for column in columns_of_interest:
+    fig.add_trace(go.Scatter(
+        x=df.index,  # Use index as x-axis
+        y=df[column],
+        mode='lines+markers',  # Show lines and markers
+        name=column,
+        hovertemplate=f"{column}: %{{y}}<extra></extra>"  # Custom hover text
+    ))
+
+# Create dropdown buttons to show/hide specific columns
+buttons = []
+for i, column in enumerate(columns_of_interest):
+    visibility = [False] * len(columns_of_interest)  # Initially hide all
+    visibility[i] = True                              # Show the selected column
+
+    buttons.append(dict(label=column,
+                        method="update",
+                        args=[{"visible": visibility},  # Update visibility
+                              {"title": f"Plot of {column}"}]))  # Update title
+
+# Add dropdown to the layout
+fig.update_layout(
+    updatemenus=[{
+        "buttons": buttons,
+        "direction": "down",
+        "showactive": True
+    }],
+    title="Interactive Line Plot",
+    xaxis_title="Query Count",  # Use Index as x-axis title
+    yaxis_title="Time Taken"
+)
+
+# Save the plot as an HTML file
+plot(fig, filename='plotly_graph.html', auto_open=False)
